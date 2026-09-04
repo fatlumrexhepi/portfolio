@@ -660,6 +660,10 @@ section p {
 
 /* PROJECT */
 
+#projects {
+    transform: translateY(-120px);
+}
+
 .projects-intro {
     margin-bottom: 55px;
     text-align: right;
@@ -768,6 +772,7 @@ linear-gradient(
     text-align: center;
 
     z-index: 4;
+    pointer-events: none;
 
     transition:
         transform 0.35s ease,
@@ -830,6 +835,7 @@ linear-gradient(
     font-family: Arial, sans-serif;
     font-size: 11px;
     letter-spacing: 2px;
+    pointer-events: none;
 
     color: rgba(211, 199, 175, 0.62);
 }
@@ -902,6 +908,11 @@ linear-gradient(
 
 
 /* CERTIFICATES */
+
+#certificates {
+    transform: translateY(-120px);
+}
+
 
 .certificate-list {
     margin-top: 45px;
