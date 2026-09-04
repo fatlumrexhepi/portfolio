@@ -429,7 +429,7 @@ section p {
 }
 
 .core-skills {
-    margin-top: 51px;
+    margin-top: 80px;
 }
 
 .skill-row:last-child {
@@ -1396,7 +1396,10 @@ main {
     width: 100%;
     overflow: visible;}
     
-
+.quick-facts,
+.core-skills {
+    will-change: translate;
+}
 
 
     nav a,

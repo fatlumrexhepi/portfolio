@@ -9,7 +9,7 @@
 <link href="https://api.fontshare.com/v2/css?f[]=stardom@400&f[]=boska@201&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
-
+<link rel="icon" type="image/png" href="images/a.png">
 </head>
 
 
@@ -453,26 +453,24 @@
     const heroSubtitle = document.querySelector("#hero h2");
 
     const sectionTitles = document.querySelectorAll(".title-section > h2");
+    const quickFacts = document.querySelector(".quick-facts");
+    const coreSkills = document.querySelector(".core-skills");
 
     let ticking = false;
 
     function animateScrollEffects() {
         const scroll = window.scrollY;
         const heroHeight = heroSection.offsetHeight;
-
         const progress = Math.min(scroll / heroHeight, 1);
-
 
         heroSection.style.backgroundPosition =
             `center ${scroll * 0.16}px`;
-
 
         heroNav.style.transform =
             `translate3d(0, ${-scroll * 0.28}px, 0)`;
 
         heroNav.style.opacity =
             Math.max(1 - progress * 2.2, 0);
-
 
         heroTitle.style.transform =
             `translate3d(0, ${-scroll * 0.22}px, 0)
@@ -484,7 +482,6 @@
         heroTitle.style.filter =
             `blur(${progress * 2}px)`;
 
-
         heroSubtitle.style.transform =
             `translate3d(0, ${-scroll * 0.10}px, 0)
              scale(${1 + progress * 0.018})`;
@@ -492,26 +489,51 @@
         heroSubtitle.style.opacity =
             Math.max(1 - progress * 1.15, 0);
 
-
         const viewportCenter = window.innerHeight / 2;
+
+        /* Schwarze Titel */
 
         sectionTitles.forEach(title => {
             const rect = title.getBoundingClientRect();
             const titleCenter = rect.top + rect.height / 2;
-
             const distance = viewportCenter - titleCenter;
 
             let move = distance * 0.07;
-
             move = Math.max(-45, Math.min(45, move));
 
             title.style.translate = `0 ${move}px`;
         });
 
+        /* Quick Facts und Core Skills */
+
+        const floatingBlocks = [
+            {
+                element: quickFacts,
+                strength: 0.13,
+                limit: 82
+            },
+            {
+                element: coreSkills,
+                strength: 0.09,
+                limit: 62
+            }
+        ];
+
+        floatingBlocks.forEach(({ element, strength, limit }) => {
+            if (!element) return;
+
+            const rect = element.getBoundingClientRect();
+            const elementCenter = rect.top + rect.height / 2;
+            const distance = viewportCenter - elementCenter;
+
+            let move = distance * strength;
+            move = Math.max(-limit, Math.min(limit, move));
+
+            element.style.translate = `0 ${move}px`;
+        });
 
         ticking = false;
     }
-
 
     window.addEventListener("scroll", () => {
         if (!ticking) {
