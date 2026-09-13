@@ -1039,14 +1039,7 @@ linear-gradient(
     padding: 70px 10% 0;
     border-bottom: 18px solid #F8F9FA;
 
-    background: linear-gradient(
-        to bottom,
-        #F8F9FA 0%,
-        #F8F9FA 20%,
-        #d9aab2 45%,
-        #a54c5a 68%,
-        #5b0b16 100%
-    );
+    background: transparent;
 
     display: flex;
     flex-direction: column;
@@ -1386,41 +1379,93 @@ linear-gradient(
 
 
 
-.scroll-line-wrap {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    pointer-events: none;
-    z-index: 1;
-}
-
-#scrollPath {
-    fill: none;
-    stroke: #6B4A35;
-    stroke-width: 10;
-
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
+/* SCROLL SNAKE / SWOOSH */
 main {
     position: relative;
     z-index: 1;
+    isolation: isolate;
+}
+
+#snake-layer,
+#snake-title-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
+    overflow: visible;
+}
+
+#snake-layer {
+    z-index: 2;
+}
+
+/* Nur die exakten Titelbereiche liegen über dem Text. */
+#snake-title-layer {
+    z-index: 6;
+}
+
+#snake-svg,
+#snake-title-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    shape-rendering: geometricPrecision;
+}
+
+#snake-path,
+#snake-title-path {
+    fill: none;
+    stroke: #6B4A35;
+    stroke-width: 24px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.10;
+    vector-effect: non-scaling-stroke;
+    will-change: stroke-dashoffset;
 }
 
 .title-section {
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
+.title-section > * {
+    position: relative;
+    z-index: 4;
+}
 
-.scroll-line {
+#contact {
+    z-index: auto;
+}
+
+#contact::after {
+    content: "";
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        #F8F9FA 0%,
+        #F8F9FA 20%,
+        #d9aab2 45%,
+        #a54c5a 68%,
+        #5b0b16 100%
+    );
+}
 
-    width: 100%;
-    overflow: visible;}
+#contact::before {
+    z-index: 1;
+}
+
+#contact > * {
+    position: relative;
+    z-index: 4;
+}
     
 .quick-facts,
 .core-skills {
@@ -1455,6 +1500,12 @@ section p,
 @media (max-width: 900px) {
     body {
         overflow-x: hidden;
+    }
+
+    #snake-path,
+    #snake-title-path {
+        stroke-width: 18px;
+        opacity: 0.08;
     }
 
     #hero {
@@ -1662,6 +1713,12 @@ section p,
 }
 
 @media (max-width: 480px) {
+    #snake-path,
+    #snake-title-path {
+        stroke-width: 13px;
+        opacity: 0.065;
+    }
+
     section {
         padding-right: 18px;
         padding-left: 18px;

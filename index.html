@@ -9,7 +9,7 @@
 <link href="https://api.fontshare.com/v2/css?f[]=stardom@400&f[]=boska@201&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
-<link rel="icon" type="image/png" href="images/a.png">
+<link rel="icon" type="image/png" href="images/b.png">
 </head>
 
 
@@ -51,9 +51,18 @@
     <p class="tree-caption">
     Growing, one line at a time.
 </p>
-<div id="snake-layer"></div>
 
 <main>
+    <div id="snake-layer" aria-hidden="true">
+        <svg
+            id="snake-svg"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+            focusable="false"
+        >
+            <path id="snake-path"></path>
+        </svg>
+    </div>
 
 
 
@@ -549,7 +558,303 @@
 
 
 
+<script>
+(() => {
+    const main = document.querySelector("main");
+    const contact = document.querySelector("#contact");
+    const treeCaption = document.querySelector(".tree-caption");
+
+    const snakeLayer = document.querySelector("#snake-layer");
+    const snakeSvg = document.querySelector("#snake-svg");
+    const snakePath = document.querySelector("#snake-path");
+
+    if (!main || !contact || !treeCaption || !snakeLayer || !snakeSvg || !snakePath) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    let pathLength = 0;
+    let snakeHeight = 1;
+    let snakeOriginDocumentY = 0;
+    let snakeOriginViewportY = 0;
+    let pathLookup = [];
+
+    let currentProgress = 0;
+    let targetProgress = 0;
+
+    let animationFrame = null;
+    let resizeFrame = null;
+    let lastFrameTime = performance.now();
+    let initialized = false;
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    function getTextRect(element) {
+        if (!element) return null;
+
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const rect = range.getBoundingClientRect();
+        range.detach?.();
+
+        return rect;
+    }
+
+    function getBaseTitleRect(title) {
+        const rect = getTextRect(title);
+        if (!rect) return null;
+
+        let dynamicY = 0;
+        const inlineTranslate = title.style.translate || "";
+        const matches = inlineTranslate.match(/-?\d*\.?\d+px/g);
+
+        if (matches && matches.length) {
+            dynamicY = parseFloat(matches[matches.length - 1]) || 0;
+        }
+
+        return {
+            left: rect.left,
+            top: rect.top - dynamicY,
+            width: rect.width,
+            height: rect.height
+        };
+    }
+
+    function getTitleAnchor(title, mainRect, fallbackX, fallbackY) {
+        const rect = getBaseTitleRect(title);
+
+        if (!rect || !rect.width || !rect.height) {
+            return {
+                x: main.clientWidth * fallbackX,
+                y: snakeHeight * fallbackY
+            };
+        }
+
+        return {
+            x: rect.left - mainRect.left + rect.width * 0.50,
+            y: rect.top - snakeOriginViewportY + rect.height * 0.52
+        };
+    }
+
+    function buildSnakePath(width, height, startX, anchors) {
+        const about = anchors.about;
+        const projects = anchors.projects;
+        const certificates = anchors.certificates;
+
+        const desktop = width > 900;
+        const endY = Math.max(height - 14, certificates.y + 90);
+        const endX = width * 0.50;
+
+        const points = [
+            { x: startX, y: 0 },
+            { x: about.x, y: about.y },
+            { x: projects.x, y: projects.y },
+            { x: certificates.x, y: certificates.y },
+            { x: endX, y: endY }
+        ];
+
+        let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+
+        const tension = desktop ? 0.82 : 0.74;
+        const factor = tension / 6;
+
+        for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[i - 1] || points[i];
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            const p3 = points[i + 2] || p2;
+
+            let cp1x = p1.x + (p2.x - p0.x) * factor;
+            let cp1y = p1.y + (p2.y - p0.y) * factor;
+            let cp2x = p2.x - (p3.x - p1.x) * factor;
+            let cp2y = p2.y - (p3.y - p1.y) * factor;
+
+            const minY = p1.y;
+            const maxY = p2.y;
+            cp1y = clamp(cp1y, minY, maxY);
+            cp2y = clamp(cp2y, minY, maxY);
+
+            d += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)} ${cp2x.toFixed(2)} ${cp2y.toFixed(2)} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+        }
+
+        return d;
+    }
+
+    function buildPathLookup() {
+        pathLookup = [];
+        if (!pathLength) return;
+
+        const samples = 240;
+
+        for (let i = 0; i <= samples; i++) {
+            const progress = i / samples;
+            const point = snakePath.getPointAtLength(pathLength * progress);
+            pathLookup.push({ y: point.y, progress });
+        }
+    }
+
+    function progressForY(y) {
+        if (!pathLookup.length) return 0;
+        if (y <= pathLookup[0].y) return 0;
+        if (y >= pathLookup[pathLookup.length - 1].y) return 1;
+
+        let low = 0;
+        let high = pathLookup.length - 1;
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            if (pathLookup[mid].y < y) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        const a = pathLookup[Math.max(high, 0)];
+        const b = pathLookup[Math.min(low, pathLookup.length - 1)];
+        const span = Math.max(b.y - a.y, 0.0001);
+        const local = clamp((y - a.y) / span, 0, 1);
+
+        return a.progress + (b.progress - a.progress) * local;
+    }
+
+    function renderSnake() {
+        if (!pathLength) return;
+        const offset = pathLength * (1 - currentProgress);
+        snakePath.style.strokeDashoffset = `${offset}`;
+    }
+
+    function calculateTarget() {
+        if (reduceMotion.matches) return 1;
+
+        const playheadDocumentY = window.scrollY + window.innerHeight * 0.80;
+        const localY = playheadDocumentY - snakeOriginDocumentY;
+        return progressForY(localY);
+    }
+
+    function updateTarget() {
+        targetProgress = calculateTarget();
+
+        if (reduceMotion.matches) {
+            currentProgress = targetProgress;
+            renderSnake();
+            return;
+        }
+
+        startAnimation();
+    }
+
+    function animate(time) {
+        const delta = Math.min(time - lastFrameTime, 32);
+        lastFrameTime = time;
+
+        const smoothing = 1 - Math.pow(1 - 0.15, delta / 16.667);
+        currentProgress += (targetProgress - currentProgress) * smoothing;
+
+        if (Math.abs(targetProgress - currentProgress) < 0.00035) {
+            currentProgress = targetProgress;
+        }
+
+        renderSnake();
+
+        if (Math.abs(targetProgress - currentProgress) > 0.00035) {
+            animationFrame = requestAnimationFrame(animate);
+        } else {
+            animationFrame = null;
+        }
+    }
+
+    function startAnimation() {
+        if (animationFrame) return;
+        lastFrameTime = performance.now();
+        animationFrame = requestAnimationFrame(animate);
+    }
+
+    function measureSnake() {
+        const mainRect = main.getBoundingClientRect();
+        const contactRect = contact.getBoundingClientRect();
+        const captionTextRect = getTextRect(treeCaption) || treeCaption.getBoundingClientRect();
+        const width = Math.max(main.clientWidth, 1);
+
+        snakeOriginViewportY = captionTextRect.bottom + 2;
+        snakeOriginDocumentY = window.scrollY + snakeOriginViewportY;
+
+        const layerTop = snakeOriginViewportY - mainRect.top;
+        snakeHeight = Math.max(contactRect.top - snakeOriginViewportY, 1);
+
+        snakeLayer.style.top = `${layerTop}px`;
+        snakeLayer.style.height = `${snakeHeight}px`;
+
+        snakeSvg.setAttribute("viewBox", `0 0 ${width} ${snakeHeight}`);
+
+        const startX = clamp(
+            captionTextRect.left - mainRect.left + captionTextRect.width * 0.50,
+            0,
+            width
+        );
+
+        const anchors = {
+            about: getTitleAnchor(document.querySelector("#about > h2"), mainRect, 0.24, 0.18),
+            projects: getTitleAnchor(document.querySelector("#projects > h2"), mainRect, 0.76, 0.48),
+            certificates: getTitleAnchor(document.querySelector("#certificates > h2"), mainRect, 0.25, 0.74)
+        };
+
+        const pathData = buildSnakePath(width, snakeHeight, startX, anchors);
+        snakePath.setAttribute("d", pathData);
+
+        pathLength = snakePath.getTotalLength();
+        snakePath.style.strokeDasharray = `${pathLength} ${pathLength}`;
+
+        buildPathLookup();
+        targetProgress = calculateTarget();
+
+        if (!initialized) {
+            currentProgress = targetProgress;
+            initialized = true;
+        }
+
+        renderSnake();
+    }
+
+    function scheduleMeasure() {
+        if (resizeFrame) return;
+
+        resizeFrame = requestAnimationFrame(() => {
+            resizeFrame = null;
+            measureSnake();
+            updateTarget();
+        });
+    }
+
+    window.addEventListener("scroll", updateTarget, { passive: true });
+    window.addEventListener("resize", scheduleMeasure, { passive: true });
+
+    if ("ResizeObserver" in window) {
+        const resizeObserver = new ResizeObserver(scheduleMeasure);
+        resizeObserver.observe(main);
+    }
+
+    if (typeof reduceMotion.addEventListener === "function") {
+        reduceMotion.addEventListener("change", () => {
+            if (reduceMotion.matches) {
+                targetProgress = 1;
+                currentProgress = 1;
+                renderSnake();
+            } else {
+                measureSnake();
+                updateTarget();
+            }
+        });
+    }
+
+    if (document.fonts?.ready) {
+        document.fonts.ready.then(scheduleMeasure);
+    }
+
+    measureSnake();
+    updateTarget();
+})();
+</script>
+
 </body>
 </html>
-
 
