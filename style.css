@@ -6,9 +6,7 @@ html {
     scroll-behavior: smooth;
 }
 
-/* HERO */
-/* deploy test */
-/* deploy test */
+
 #hero {
     width: 100%;
     height: 100vh;
@@ -119,11 +117,11 @@ nav a:hover::after {
 
 #header-text {
     position: relative;
-    z-index: 2;
+    z-index: 1000;
 }
 
 #hero h1 {
-    margin: 55px 0;
+    margin: 160px 0 90px 0;
     text-align: center;
     font-family: "Clash Display";
     font-size: 160px;
@@ -136,7 +134,7 @@ nav a:hover::after {
     justify-content: center;
     align-items: baseline;
     gap: 25px;
-    margin: 180px 15px 0;
+    margin: 80px 15px 0;
     font-size: 90px;
     line-height: 0.95;
     color: #F8F9FA;
