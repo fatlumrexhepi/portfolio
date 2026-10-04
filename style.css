@@ -1465,7 +1465,7 @@ main {
     z-index: 2;
 }
 
-/* Nur die exakten Titelbereiche liegen über dem Text. */
+
 #snake-title-layer {
     z-index: 6;
 }
@@ -1559,7 +1559,7 @@ section p,
     letter-spacing: 0.02em;
 }
 
-/* RESPONSIVE: TABLET + MOBILE */
+
 @media (max-width: 900px) {
     body {
         overflow-x: hidden;
@@ -1617,11 +1617,6 @@ section p,
         text-align: center;
     }
 
-    .hero-scroll {
-        bottom: 24px;
-        width: 32px;
-        height: 44px;
-    }
 
     section {
         min-height: auto;
