@@ -240,10 +240,6 @@ main {
     margin-top: 0;
 } 
 
-.projects-intro{
-    text-align: left;
-}
-
 main h1 {
     font-family: serif, arial;
     font-size: 50px;
@@ -450,14 +446,6 @@ section p {
 
 #justseen span {
     display: inline-block;
-}
-
-#justseen {
-    display: inline-block;
-}
-
-#justseen span {
-    display: inline-block;
     color: transparent;
     -webkit-text-fill-color: transparent;
 }
@@ -583,16 +571,7 @@ section p {
 .skills-title {
     font-weight: 700;
 }
-.fact-label,
-.skill-number {
-    font-weight: 400;
-    
-}
 
-.quick-facts-title,
-.skills-title {
-    font-weight: 700;
-}
 
 .about {
     position: relative;
@@ -1087,7 +1066,7 @@ linear-gradient(
     }
 }
 
-/* CERTIFICATES */
+/* Certificates */
 
 #certificates {
     transform: translateY(-250px);
@@ -1188,7 +1167,7 @@ linear-gradient(
     color: #F8F9FA;
 }
 
-/* CONTACT */
+/* Contact */
 
 #contact {
     min-height: 100vh;
@@ -1349,7 +1328,7 @@ linear-gradient(
     text-align: center;
 }
 
-/* SIDE NAV */
+/* Side navigation */
 
 .side-nav {
     position: fixed;
@@ -1521,7 +1500,7 @@ linear-gradient(
     transition-delay: 0.12s;
 }
 
-/* SCROLL SNAKE / SWOOSH */
+/* Scroll path */
 main {
     position: relative;
     z-index: 1;
@@ -2036,7 +2015,7 @@ section p,
     border-color: #6B4A35;
 }
 
-/* RESPONSIVE */
+/* Responsive layout */
 
 @media (max-width: 900px) {
     #technical-skills {

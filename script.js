@@ -1,132 +1,124 @@
-    const sideNav = document.querySelector(".side-nav");
-    const hero = document.querySelector("#hero");
-    const contact = document.querySelector("#contact");
+// Side navigation
+const sideNav = document.querySelector(".side-nav");
+const hero = document.querySelector("#hero");
+const contact = document.querySelector("#contact");
 
-    function updateSideNav() {
-        const heroBottom = hero.getBoundingClientRect().bottom;
-        const contactTop = contact.getBoundingClientRect().top;
+function updateSideNav() {
+    const heroBottom = hero.getBoundingClientRect().bottom;
+    const contactTop = contact.getBoundingClientRect().top;
 
-        const heroIsGone = heroBottom <= 0;
-        const contactIsVisible = contactTop <= window.innerHeight;
+    const heroIsGone = heroBottom <= 0;
+    const contactIsVisible = contactTop <= window.innerHeight;
 
-        if (heroIsGone && !contactIsVisible) {
-            sideNav.classList.add("active");
-        } else {
-            sideNav.classList.remove("active");
-        }
+    if (heroIsGone && !contactIsVisible) {
+        sideNav.classList.add("active");
+    } else {
+        sideNav.classList.remove("active");
     }
+}
 
-    window.addEventListener("scroll", updateSideNav);
-    window.addEventListener("resize", updateSideNav);
+window.addEventListener("scroll", updateSideNav);
+window.addEventListener("resize", updateSideNav);
 
-    updateSideNav();
+updateSideNav();
 
+// Hero and section scroll effects
+const heroSection = document.querySelector("#hero");
+const heroNav = document.querySelector("#hero > nav:not(.side-nav)");
+const heroTitle = document.querySelector("#hero h1");
+const heroSubtitle = document.querySelector("#hero h2");
 
+const sectionTitles = document.querySelectorAll(".title-section > h2");
+const quickFacts = document.querySelector(".quick-facts");
+const coreSkills = document.querySelector(".core-skills");
 
+let ticking = false;
 
+function animateScrollEffects() {
+    const scroll = window.scrollY;
+    const heroHeight = heroSection.offsetHeight;
+    const progress = Math.min(scroll / heroHeight, 1);
 
-    
-    const heroSection = document.querySelector("#hero");
-    const heroNav = document.querySelector("#hero > nav:not(.side-nav)");
-    const heroTitle = document.querySelector("#hero h1");
-    const heroSubtitle = document.querySelector("#hero h2");
+    heroSection.style.backgroundPosition =
+        `center ${scroll * 0.16}px`;
 
-    const sectionTitles = document.querySelectorAll(".title-section > h2");
-    const quickFacts = document.querySelector(".quick-facts");
-    const coreSkills = document.querySelector(".core-skills");
+    heroNav.style.transform =
+        `translate3d(0, ${-scroll * 0.28}px, 0)`;
 
-    let ticking = false;
+    heroNav.style.opacity =
+        Math.max(1 - progress * 2.2, 0);
 
-    function animateScrollEffects() {
-        const scroll = window.scrollY;
-        const heroHeight = heroSection.offsetHeight;
-        const progress = Math.min(scroll / heroHeight, 1);
+    heroTitle.style.transform =
+        `translate3d(0, ${-scroll * 0.22}px, 0)
+         scale(${1 - progress * 0.035})`;
 
-        heroSection.style.backgroundPosition =
-            `center ${scroll * 0.16}px`;
+    heroTitle.style.opacity =
+        Math.max(1 - progress * 1.35, 0);
 
-        heroNav.style.transform =
-            `translate3d(0, ${-scroll * 0.28}px, 0)`;
+    heroTitle.style.filter =
+        `blur(${progress * 2}px)`;
 
-        heroNav.style.opacity =
-            Math.max(1 - progress * 2.2, 0);
+    heroSubtitle.style.transform =
+        `translate3d(0, ${-scroll * 0.10}px, 0)
+         scale(${1 + progress * 0.018})`;
 
-        heroTitle.style.transform =
-            `translate3d(0, ${-scroll * 0.22}px, 0)
-             scale(${1 - progress * 0.035})`;
+    heroSubtitle.style.opacity =
+        Math.max(1 - progress * 1.15, 0);
 
-        heroTitle.style.opacity =
-            Math.max(1 - progress * 1.35, 0);
+    const viewportCenter = window.innerHeight / 2;
 
-        heroTitle.style.filter =
-            `blur(${progress * 2}px)`;
+    sectionTitles.forEach(title => {
+        const rect = title.getBoundingClientRect();
+        const titleCenter = rect.top + rect.height / 2;
+        const distance = viewportCenter - titleCenter;
 
-        heroSubtitle.style.transform =
-            `translate3d(0, ${-scroll * 0.10}px, 0)
-             scale(${1 + progress * 0.018})`;
+        let move = distance * 0.07;
+        move = Math.max(-45, Math.min(45, move));
 
-        heroSubtitle.style.opacity =
-            Math.max(1 - progress * 1.15, 0);
-
-        const viewportCenter = window.innerHeight / 2;
-
-
-
-        sectionTitles.forEach(title => {
-            const rect = title.getBoundingClientRect();
-            const titleCenter = rect.top + rect.height / 2;
-            const distance = viewportCenter - titleCenter;
-
-            let move = distance * 0.07;
-            move = Math.max(-45, Math.min(45, move));
-
-            title.style.translate = `0 ${move}px`;
-        });
-
-
-
-        const floatingBlocks = [
-            {
-                element: quickFacts,
-                strength: 0.13,
-                limit: 82
-            },
-            {
-                element: coreSkills,
-                strength: 0.09,
-                limit: 62
-            }
-        ];
-
-        floatingBlocks.forEach(({ element, strength, limit }) => {
-            if (!element) return;
-
-            const rect = element.getBoundingClientRect();
-            const elementCenter = rect.top + rect.height / 2;
-            const distance = viewportCenter - elementCenter;
-
-            let move = distance * strength;
-            move = Math.max(-limit, Math.min(limit, move));
-
-            element.style.translate = `0 ${move}px`;
-        });
-
-        ticking = false;
-    }
-
-    window.addEventListener("scroll", () => {
-        if (!ticking) {
-            requestAnimationFrame(animateScrollEffects);
-            ticking = true;
-        }
+        title.style.translate = `0 ${move}px`;
     });
 
-    window.addEventListener("resize", animateScrollEffects);
+    const floatingBlocks = [
+        {
+            element: quickFacts,
+            strength: 0.13,
+            limit: 82
+        },
+        {
+            element: coreSkills,
+            strength: 0.09,
+            limit: 62
+        }
+    ];
 
-    animateScrollEffects();
+    floatingBlocks.forEach(({ element, strength, limit }) => {
+        if (!element) return;
 
+        const rect = element.getBoundingClientRect();
+        const elementCenter = rect.top + rect.height / 2;
+        const distance = viewportCenter - elementCenter;
 
-    
+        let move = distance * strength;
+        move = Math.max(-limit, Math.min(limit, move));
+
+        element.style.translate = `0 ${move}px`;
+    });
+
+    ticking = false;
+}
+
+window.addEventListener("scroll", () => {
+    if (!ticking) {
+        requestAnimationFrame(animateScrollEffects);
+        ticking = true;
+    }
+});
+
+window.addEventListener("resize", animateScrollEffects);
+
+animateScrollEffects();
+
+// Animated line through the page
 (() => {
     const main = document.querySelector("main");
     const contact = document.querySelector("#contact");
