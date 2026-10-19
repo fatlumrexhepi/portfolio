@@ -682,6 +682,72 @@ section p {
     top: 30px;
 }
 
+
+.skills {
+    position: relative;
+}
+
+.internship-note {
+    position: absolute;
+    right: -5%;
+    top: 65px;
+    width: max-content;
+    max-width: 280px;
+    padding: 17px 22px;
+
+    background: #F8F9FA;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    border-radius: 16px;
+
+    box-shadow: 0 8px 28px rgba(23, 17, 13, 0.04);
+
+    transform: rotate(3deg);
+    animation: note-slide-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.internship-note::after {
+    content: "";
+    position: absolute;
+    bottom: -9px;
+    left: 30px;
+
+    width: 16px;
+    height: 16px;
+    background: #F8F9FA;
+
+    border-right: 1px solid rgba(107, 74, 53, 0.35);
+    border-bottom: 1px solid rgba(107, 74, 53, 0.35);
+
+    transform: rotate(45deg);
+}
+
+.internship-note-label {
+    font-family: "Clash Display", sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #6B4A35;
+}
+
+.internship-note p {
+    margin: 8px 0 0;
+    font-family: "Clash Display", sans-serif;
+    font-size: 15px;
+    line-height: 1.35;
+    color: #49362B;
+}
+
+@keyframes note-slide-in {
+    from {
+        opacity: 0;
+        translate: 45px 0;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+
+
 .quick-facts {
     width: 100%;
     margin-top: 171px;
