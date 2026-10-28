@@ -800,7 +800,7 @@ linear-gradient(
 }
 
 .projects-grid .project-card:nth-child(2) .project-image img {
-    object-position: 80.2% center;
+    object-position: center center;
 }
 
 .project-card:hover .project-image img {
